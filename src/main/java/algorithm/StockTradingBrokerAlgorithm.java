@@ -9,17 +9,20 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalTime;
 import java.util.Scanner;
 
 import static java.io.File.separatorChar;
 import static java.lang.Integer.parseInt;
 import static java.nio.file.Files.newBufferedReader;
+import static java.time.temporal.ChronoUnit.*;
 
 public class StockTradingBrokerAlgorithm {
     private static long profit = 0;
     private final String RESOURCES_PATH = System.getProperty("user.dir") + separatorChar + "src" + separatorChar + "main" + separatorChar + "resources" + separatorChar;
     private MinPQ<Stock> sellOrders;
     private MaxPQ<Stock> buyOrders;
+    private LocalTime tempoInicial;
 
     static class Stock implements Comparable<Stock> {
         public long price;
@@ -51,7 +54,8 @@ public class StockTradingBrokerAlgorithm {
         System.out.println("Lucro total: " + profit);
         System.out.println("Compras restantes: " + buyOrders.size());
         System.out.println("Vendas restantes: " + sellOrders.size());
-        System.out.println("Tempo: [EM CONSTRUÇÃO]");
+        final var tempoExecucao = (double) MILLIS.between(tempoInicial, LocalTime.now()) / 1000;
+        System.out.println("Tempo: " + tempoExecucao);
     }
 
     private String askOrdersFilename() {
@@ -62,6 +66,7 @@ public class StockTradingBrokerAlgorithm {
     }
 
     protected void doRun(BufferedReader ordersReader) throws IOException {
+        tempoInicial = LocalTime.now();
         var line = ordersReader.readLine();
 
         final var heapCapacity = parseInt(line);
