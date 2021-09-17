@@ -6,9 +6,6 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        /*final var stockTradingBroker = new StockTradingBrokerAlgorithm();
-        stockTradingBroker.run();
-        */
         final var listaDeArquivos = List.of(
                 "trinta_enunciado.txt",
                 "trinta.txt",

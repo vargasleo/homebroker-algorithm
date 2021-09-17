@@ -58,9 +58,9 @@ public class StockTradingBrokerAlgorithm {
 
     private void printResults(String ordersFilename) {
         System.out.println(ordersFilename);
-        System.out.println(+ profit);
-        System.out.println(+ buyOrders.size());
-        System.out.println(+ sellOrders.size());
+        System.out.println(profit);
+        System.out.println(buyOrders.size());
+        System.out.println(sellOrders.size());
         final var tempoExecucao = (double) MILLIS.between(tempoInicial, LocalTime.now()) / 1000;
         System.out.println("Tempo: " + tempoExecucao);
         System.out.println(Count.count);
