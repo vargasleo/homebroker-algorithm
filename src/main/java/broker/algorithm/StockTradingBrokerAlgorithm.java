@@ -1,13 +1,13 @@
-package algorithm;
+package broker.algorithm;
 
-import heap.MaxPQ;
-import heap.MinPQ;
+import broker.Count;
+import broker.heap.MaxPQ;
+import broker.heap.MinPQ;
+import org.w3c.dom.css.Counter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalTime;
 import java.util.Scanner;
@@ -23,6 +23,13 @@ public class StockTradingBrokerAlgorithm {
     private MinPQ<Stock> sellOrders;
     private MaxPQ<Stock> buyOrders;
     private LocalTime tempoInicial;
+
+    public void runFile(String i) throws IOException {
+        final var ordersPath = Paths.get(RESOURCES_PATH + i);
+        final var ordersReader = newBufferedReader(ordersPath, StandardCharsets.UTF_8);
+        this.doRun(ordersReader);
+        this.printResults(i);
+    }
 
     static class Stock implements Comparable<Stock> {
         public long price;
@@ -51,11 +58,12 @@ public class StockTradingBrokerAlgorithm {
 
     private void printResults(String ordersFilename) {
         System.out.println(ordersFilename);
-        System.out.println("Lucro total: " + profit);
-        System.out.println("Compras restantes: " + buyOrders.size());
-        System.out.println("Vendas restantes: " + sellOrders.size());
+        System.out.println(+ profit);
+        System.out.println(+ buyOrders.size());
+        System.out.println(+ sellOrders.size());
         final var tempoExecucao = (double) MILLIS.between(tempoInicial, LocalTime.now()) / 1000;
         System.out.println("Tempo: " + tempoExecucao);
+        System.out.println(Count.count);
     }
 
     private String askOrdersFilename() {
@@ -68,16 +76,20 @@ public class StockTradingBrokerAlgorithm {
     protected void doRun(BufferedReader ordersReader) throws IOException {
         tempoInicial = LocalTime.now();
         var line = ordersReader.readLine();
-
+        Count.count++;
         final var heapCapacity = parseInt(line);
 
         sellOrders = new MinPQ<>(heapCapacity);
+        Count.count++;
+
         buyOrders = new MaxPQ<>(heapCapacity);
+        Count.count++;
 
         while ((line = ordersReader.readLine()) != null) {
 
             var data = line.split(" ");
             final var stock = new Stock(parseInt(data[1]), parseInt(data[2]));
+            Count.count++;
 
             if (data[0].equals("C"))
                 buyOrders.insert(stock);
@@ -91,7 +103,9 @@ public class StockTradingBrokerAlgorithm {
 
     private void executePossibleOrders() {
         var isLucrativeOperation = true;
+        Count.count++;
         do {
+            Count.count++;
             if (!buyOrders.isEmpty() && !sellOrders.isEmpty()) {
                 var buyOrder = buyOrders.max();
                 var sellOrder = sellOrders.min();
@@ -107,7 +121,6 @@ public class StockTradingBrokerAlgorithm {
                     }
                 } else
                     isLucrativeOperation = false;
-
             }
         } while (!sellOrders.isEmpty() && !buyOrders.isEmpty() && isLucrativeOperation);
     }
