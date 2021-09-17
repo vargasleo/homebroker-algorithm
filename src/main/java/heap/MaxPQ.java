@@ -1,22 +1,4 @@
-package heap; /******************************************************************************
- *  Compilation:  javac heap.MaxPQ.java
- *  Execution:    java heap.MaxPQ < input.txt
- *  Dependencies: StdIn.java StdOut.java
- *  Data files:   https://algs4.cs.princeton.edu/24pq/tinyPQ.txt
- *
- *  Generic max priority queue implementation with a binary heap.
- *  Can be used with a comparator instead of the natural order,
- *  but the generic Key type must still be Comparable.
- *
- *  % java heap.MaxPQ < tinyPQ.txt
- *  Q X P (6 left on pq)
- *
- *  We use a one-based array to simplify parent and child calculations.
- *
- *  Can be optimized by replacing full exchanges with half exchanges
- *  (ala insertion sort).
- *
- ******************************************************************************/
+package heap;
 
 import java.util.Comparator;
 import java.util.Iterator;

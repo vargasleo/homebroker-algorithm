@@ -5,7 +5,9 @@ import heap.MinPQ;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
@@ -14,7 +16,7 @@ import static java.lang.Integer.parseInt;
 import static java.nio.file.Files.newBufferedReader;
 
 public class StockTradingBrokerAlgorithm {
-    private static long profit = 0L;
+    private static long profit = 0;
     private final String RESOURCES_PATH = System.getProperty("user.dir") + separatorChar + "src" + separatorChar + "main" + separatorChar + "resources" + separatorChar;
     private MinPQ<Stock> sellOrders;
     private MaxPQ<Stock> buyOrders;
@@ -59,7 +61,7 @@ public class StockTradingBrokerAlgorithm {
         return ordersFilename;
     }
 
-    private void doRun(BufferedReader ordersReader) throws IOException {
+    protected void doRun(BufferedReader ordersReader) throws IOException {
         var line = ordersReader.readLine();
 
         final var heapCapacity = parseInt(line);
