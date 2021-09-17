@@ -14,16 +14,17 @@ import java.util.Scanner;
 
 import static java.io.File.separatorChar;
 import static java.lang.Integer.parseInt;
+import static java.lang.Long.parseLong;
 import static java.nio.file.Files.newBufferedReader;
 import static java.time.temporal.ChronoUnit.*;
 
 public class StockTradingBrokerAlgorithm {
-    private static long profit = 0;
+    private long profit = 0;
+    private int totalOrders;
     private final String RESOURCES_PATH = System.getProperty("user.dir") + separatorChar + "src" + separatorChar + "main" + separatorChar + "resources" + separatorChar;
     private MinPQ<Stock> sellOrders;
     private MaxPQ<Stock> buyOrders;
     private LocalTime tempoInicial;
-
     public void runFile(String i) throws IOException {
         final var ordersPath = Paths.get(RESOURCES_PATH + i);
         final var ordersReader = newBufferedReader(ordersPath, StandardCharsets.UTF_8);
@@ -57,13 +58,14 @@ public class StockTradingBrokerAlgorithm {
     }
 
     private void printResults(String ordersFilename) {
+        final var tempoExecucao = (double) MICROS.between(tempoInicial, LocalTime.now()) / 1000000;
         System.out.println(ordersFilename);
+        System.out.println(totalOrders);
+        System.out.println(Count.count);
+        System.out.println(tempoExecucao);
         System.out.println(profit);
         System.out.println(buyOrders.size());
         System.out.println(sellOrders.size());
-        final var tempoExecucao = (double) MILLIS.between(tempoInicial, LocalTime.now()) / 1000;
-        System.out.println("Tempo: " + tempoExecucao);
-        System.out.println(Count.count);
     }
 
     private String askOrdersFilename() {
@@ -76,26 +78,20 @@ public class StockTradingBrokerAlgorithm {
     protected void doRun(BufferedReader ordersReader) throws IOException {
         tempoInicial = LocalTime.now();
         var line = ordersReader.readLine();
+        totalOrders = parseInt(line);
+        sellOrders = new MinPQ<>(totalOrders);
+        buyOrders = new MaxPQ<>(totalOrders);
         Count.count++;
-        final var heapCapacity = parseInt(line);
-
-        sellOrders = new MinPQ<>(heapCapacity);
-        Count.count++;
-
-        buyOrders = new MaxPQ<>(heapCapacity);
-        Count.count++;
-
         while ((line = ordersReader.readLine()) != null) {
-
             var data = line.split(" ");
             final var stock = new Stock(parseInt(data[1]), parseInt(data[2]));
             Count.count++;
-
             if (data[0].equals("C"))
                 buyOrders.insert(stock);
-            else
+            else if (data[0].equals("V"))
                 sellOrders.insert(stock);
-
+            else
+                throw new IllegalArgumentException("Formato de arquivo inválido. ");
             executePossibleOrders();
         }
         ordersReader.close();
