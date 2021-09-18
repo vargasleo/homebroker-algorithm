@@ -3,7 +3,6 @@ package broker.algorithm;
 import broker.Count;
 import broker.heap.MaxPQ;
 import broker.heap.MinPQ;
-import org.w3c.dom.css.Counter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,7 +13,6 @@ import java.util.Scanner;
 
 import static java.io.File.separatorChar;
 import static java.lang.Integer.parseInt;
-import static java.lang.Long.parseLong;
 import static java.nio.file.Files.newBufferedReader;
 import static java.time.temporal.ChronoUnit.*;
 
@@ -25,6 +23,7 @@ public class StockTradingBrokerAlgorithm {
     private MinPQ<Stock> sellOrders;
     private MaxPQ<Stock> buyOrders;
     private LocalTime tempoInicial;
+
     public void runFile(String i) throws IOException {
         final var ordersPath = Paths.get(RESOURCES_PATH + i);
         final var ordersReader = newBufferedReader(ordersPath, StandardCharsets.UTF_8);
@@ -33,18 +32,18 @@ public class StockTradingBrokerAlgorithm {
     }
 
     static class Stock implements Comparable<Stock> {
-        public long price;
         public long quantity;
+        public long price;
 
-        public Stock(int price, int quantity) {
-            this.price = price;
+        public Stock(int quantity, int price) {
             this.quantity = quantity;
+            this.price = price;
         }
 
         @Override
         public int compareTo(Stock o) {
-            if (this.quantity != o.quantity)
-                return Long.compare(this.quantity, o.quantity);
+            if (this.price != o.price)
+                return Long.compare(this.price, o.price);
             return 0;
         }
     }
@@ -60,12 +59,12 @@ public class StockTradingBrokerAlgorithm {
     private void printResults(String ordersFilename) {
         final var tempoExecucao = (double) MICROS.between(tempoInicial, LocalTime.now()) / 1000000;
         System.out.println(ordersFilename);
-        System.out.println(totalOrders);
-        System.out.println(Count.count);
-        System.out.println(tempoExecucao);
-        System.out.println(profit);
-        System.out.println(buyOrders.size());
-        System.out.println(sellOrders.size());
+        System.out.println("Número total de ordens: " + totalOrders);
+        System.out.println("Número aproximado de operações: " + Count.count);
+        System.out.println("Tempo aproximado de execução: " + tempoExecucao);
+        System.out.println("Lucro: " + profit);
+        System.out.println("Ordens de compra restantes: " + buyOrders.size());
+        System.out.println("Ordens de venda restantes: " + sellOrders.size());
     }
 
     private String askOrdersFilename() {
@@ -91,11 +90,12 @@ public class StockTradingBrokerAlgorithm {
             else if (data[0].equals("V"))
                 sellOrders.insert(stock);
             else
-                throw new IllegalArgumentException("Formato de arquivo inválido. ");
+                throw new IllegalArgumentException("Formato de arquivo inválido.");
             executePossibleOrders();
         }
         ordersReader.close();
     }
+
 
     private void executePossibleOrders() {
         var isLucrativeOperation = true;
@@ -105,15 +105,15 @@ public class StockTradingBrokerAlgorithm {
             if (!buyOrders.isEmpty() && !sellOrders.isEmpty()) {
                 var buyOrder = buyOrders.max();
                 var sellOrder = sellOrders.min();
-                if (buyOrder.quantity >= sellOrder.quantity) {
-                    if (sellOrder.price > buyOrder.price) {
-                        profit += (buyOrders.delMax().quantity - sellOrder.quantity) * buyOrder.price;
-                        sellOrder.price -= buyOrder.price;
-                    } else if (sellOrder.price == buyOrder.price)
-                        profit += (buyOrders.delMax().quantity - sellOrders.delMin().quantity) * buyOrder.price;
+                if (buyOrder.price >= sellOrder.price) {
+                    if (sellOrder.quantity > buyOrder.quantity) {
+                        profit += (buyOrders.delMax().price - sellOrder.price) * buyOrder.quantity;
+                        sellOrder.quantity -= buyOrder.quantity;
+                    } else if (sellOrder.quantity == buyOrder.quantity)
+                        profit += (buyOrders.delMax().price - sellOrders.delMin().price) * buyOrder.quantity;
                     else {
-                        profit += sellOrders.delMin().price * (buyOrder.quantity - sellOrder.quantity);
-                        buyOrder.price -= sellOrder.price;
+                        profit += sellOrders.delMin().quantity * (buyOrder.price - sellOrder.price);
+                        buyOrder.quantity -= sellOrder.quantity;
                     }
                 } else
                     isLucrativeOperation = false;
